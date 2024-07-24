@@ -61,10 +61,10 @@ OneOutcomeInvariant ==
     /\ Lose(board) => (~Win(board) /\ ~Draw(board))
     /\ Draw(board) => (~Lose(board) /\ ~Win(board))
 
-TerminationInvariant == <>[] Done
+TerminationLiveness == <>[] Done
 
-CanWinContradiction  == []~Win(board)
-CanLoseContradiction == []~Lose(board)
-CanDrawContradiction == []~Draw(board)
+CanWinContradiction  == ~Win(board)
+CanLoseContradiction == ~Lose(board)
+CanDrawContradiction == ~Draw(board)
 
 =============================================================================
