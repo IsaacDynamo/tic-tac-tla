@@ -1,5 +1,5 @@
 ------------------------------- MODULE tictactoe -------------------------------
-EXTENDS Integers
+EXTENDS Integers, TLC
 
 N == 2
 Players == {"X", "O"}
@@ -27,17 +27,17 @@ PossibleMoves(B) == {x \in Tiles: B[x] = " "}
 RECURSIVE GoodMove(_, _)
 GoodMove(B, M) ==
     LET B_0 == [B EXCEPT ![M] = "X"] IN
-        IF Win(B) \/ Draw(B)
-            THEN TRUE
-            ELSE \A counter \in PossibleMoves(B_0):
-                LET B_1 == [B_0 EXCEPT ![counter] = "O"] IN
-                    \E y \in PossibleMoves(B_1): GoodMove(B_1, y)
+        \/ Win(B_0) \/ Draw(B_0)
+        \/ \A counter \in PossibleMoves(B_0):
+            LET B_1 == [B_0 EXCEPT ![counter] = "O"] IN
+                /\ ~Lose(B_1)
+                /\ \E y \in PossibleMoves(B_1):  TLCEval(GoodMove(B_1, y))
 
 Move ==
     /\ turn' = NextPlayer[turn]
     /\ \E x \in PossibleMoves(board):
         /\ board' = [board EXCEPT ![x] = turn]
-        /\ turn = "X" => GoodMove(board, x) \* Comment out this line for all possible games and no stack overflow
+        /\ turn = "X" => GoodMove(board, x)
 
 Init ==
     /\ board = [t \in Tiles |-> " "]
