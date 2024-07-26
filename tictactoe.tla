@@ -24,20 +24,19 @@ Done == Draw(board) \/ Win(board) \/ Lose(board)
 
 PossibleMoves(B) == {x \in Tiles: B[x] = " "}
 
-RECURSIVE GoodMove(_, _)
-GoodMove(B, M) ==
-    LET B_0 == [B EXCEPT ![M] = "X"] IN
-        \/ Win(B_0) \/ Draw(B_0)
-        \/ \A counter \in PossibleMoves(B_0):
-            LET B_1 == [B_0 EXCEPT ![counter] = "O"] IN
-                /\ ~Lose(B_1)
-                /\ \E y \in PossibleMoves(B_1):  TLCEval(GoodMove(B_1, y))
+GoodBoard[B_0 \in Board] ==
+    IF Win(B_0) \/ Draw(B_0) THEN TRUE
+    ELSE IF Lose(B_0) THEN FALSE
+    ELSE \A B_1 \in {[B_0 EXCEPT ![counter] = "O"]: counter \in PossibleMoves(B_0)}:
+        IF Lose(B_1) THEN FALSE
+        ELSE \E B_2 \in {[B_1 EXCEPT ![y] = "X"]: y \in PossibleMoves(B_1)}:
+            TLCEval(GoodBoard[B_2])
 
 Move ==
     /\ turn' = NextPlayer[turn]
     /\ \E x \in PossibleMoves(board):
         /\ board' = [board EXCEPT ![x] = turn]
-        /\ turn = "X" => GoodMove(board, x)
+        /\ turn = "X" => GoodBoard[board']
 
 Init ==
     /\ board = [t \in Tiles |-> " "]
