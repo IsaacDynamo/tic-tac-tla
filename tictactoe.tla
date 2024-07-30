@@ -7,8 +7,8 @@ Tiles == (0..N) \X (0..N)
 Token == {" ", "X", "O"}
 Board == [Tiles -> Token]
 
-VARIABLES board, turn
-vars == <<board, turn>>
+VARIABLES board, turn, result
+vars == <<board, turn, result>>
 
 NextPlayer == [X |-> "O", O |-> "X"]
 
@@ -33,22 +33,35 @@ GoodMove(B, M) ==
                 /\ ~Lose(B_1)
                 /\ \E y \in PossibleMoves(B_1):  TLCEval(GoodMove(B_1, y))
 
+Init ==
+    /\ board = [t \in Tiles |-> " "]
+    /\ turn = "X"
+    /\ result = "?"
+
 Move ==
+    /\ ~Done
     /\ turn' = NextPlayer[turn]
+    /\ UNCHANGED result
     /\ \E x \in PossibleMoves(board):
         /\ board' = [board EXCEPT ![x] = turn]
         /\ turn = "X" => GoodMove(board, x)
 
-Init ==
-    /\ board = [t \in Tiles |-> " "]
-    /\ turn = "X"
+X == Move /\ turn = "X"
+O == Move /\ turn = "O"
+WinGame  == result = "?" /\ Win(board)  /\ result' = "Win"  /\ UNCHANGED <<turn, board>>
+LoseGame == result = "?" /\ Lose(board) /\ result' = "Lose" /\ UNCHANGED <<turn, board>>
+DrawGame == result = "?" /\ Draw(board) /\ result' = "Draw" /\ UNCHANGED <<turn, board>>
+PreventDeadlock == result # "?" /\ UNCHANGED vars
 
 Next ==
-    \/ ~Done /\ Move
-    \/ Done /\ UNCHANGED vars
+    \/ X
+    \/ O
+    \/ WinGame
+    \/ LoseGame
+    \/ DrawGame
+    \/ PreventDeadlock
 
-
-Fairness == WF_vars(Move)
+Fairness == WF_vars(Next)
 
 Spec == Init /\ [][Next]_vars /\ Fairness
 
