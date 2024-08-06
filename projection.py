@@ -1,31 +1,8 @@
-import subprocess
-import os
 import re
-from typing import Any, Callable, List
 import networkx
 from networkx import MultiDiGraph as Graph
-
-# Tool paths
-JAVA = "C:/tools/amazon-corretto-11.0.15.9.1-windows-x64-jdk/jdk11.0.15_9/bin/java.exe"
-TLA2TOOLS = "C:/tools/TLAToolbox-1.7.1-win32.win32.x86_64/toolbox/tla2tools.jar"
-
-
-def file_ts(file):
-    try:
-        return os.path.getmtime(file)
-    except FileNotFoundError:
-        return 0
-
-def is_fresh(dst: str, src: List[str]) -> bool:
-    dst_ts = file_ts(dst)
-    return all(file_ts(s) < dst_ts for s in src)
-
-def tlc(input_path, config_path, output_path):
-    if is_fresh(output_path, [input_path, config_path]):
-        return
-
-    args = [JAVA, "-jar", TLA2TOOLS, "-config", config_path, "-dump", "dot,actionlabels", output_path.removesuffix(".dot"), input_path]
-    subprocess.run(args)
+from enum import Enum
+import json
 
 def parse_value(value: str):
     value = value.strip()
@@ -83,7 +60,7 @@ def parse_tla_dot(input: str) -> Graph:
             graph.add_node(id, state=state)
     return graph
 
-class GraphProjection:
+class Projection:
     def __init__(self):
         self._id = 0
         self.graph = Graph()
@@ -96,53 +73,65 @@ class GraphProjection:
         return i
 
     def to_dot(self, file: str):
-        dot = Graph()
+        g = Graph()
 
         for id in self.graph.nodes():
             s = self.graph.nodes[id]["state"]
-            dot.add_node(id, label=f"{s}")
+            g.add_node(id, label=f"{s}")
 
         for (s,d,a) in self.graph.edges(keys=True):
-            dot.add_edge(s,d, label=f"{a}")
+            g.add_edge(s,d, label=f"{a}")
 
-        networkx.nx_pydot.write_dot(dot, file)
+        networkx.nx_pydot.write_dot(g, file)
 
-def project(graph: Graph, projection: Callable[[Any], Any]) -> GraphProjection:
-    p = GraphProjection()
+    def to_svg(self, dot, file: str):
+        dot_file = file.removesuffix(".svg") + ".dot"
+        self.to_dot(dot_file)
+        dot.run("-Tsvg", "-o", file, dot_file)
+
+class ActionType(Enum):
+    Loop = 1
+    Internal = 2
+    External = 3
+
+class Lens:
+    filter_actions = True
+    def map_state(self, state):
+        # Convert dict into something hashable
+        return json.dumps(state, sort_keys=True, indent=1).replace(":", "=").removesuffix("\n}").removeprefix("{\n")
+
+    def map_action(self, action, type: ActionType):
+        return action
+
+def project(graph: Graph, lens: Lens) -> Projection:
+    p = Projection()
     for id in graph.nodes():
-        s = projection(graph.nodes[id]["state"])
-        pid = p.mapping.get(s, None)
-        if pid is None:
-            pid = p.id()
-            p.mapping[s] = pid
-            p.graph.add_node(pid, state = s)
-        p.id_to_pid[id] = pid
+        s = lens.map_state(graph.nodes[id]["state"])
+        if s is not None:
+            pid = p.mapping.get(s, None)
+            if pid is None:
+                pid = p.id()
+                p.mapping[s] = pid
+                p.graph.add_node(pid, state = s)
+            p.id_to_pid[id] = pid
 
-    for e in graph.edges(keys=True):
-        src = p.id_to_pid[e[0]]
-        dst = p.id_to_pid[e[1]]
-        key = e[2]
-        p.graph.add_edge(src, dst, key)
+    for (src, dst, action) in graph.edges(keys=True):
+        psrc = p.id_to_pid.get(src, None)
+        pdst = p.id_to_pid.get(dst, None)
+        if psrc is not None and pdst is not None:
+            if src == dst:
+                t = ActionType.Loop
+            elif psrc == pdst:
+                t = ActionType.Internal
+            else:
+                t = ActionType.External
+
+            if lens.filter_actions and t != ActionType.External:
+                paction = None
+            else:
+                paction = lens.map_action(action, t)
+
+            if paction is not None:
+                p.graph.add_edge(psrc, pdst, paction)
 
     return p
-
-output_path = "tictactoe.dot"
-tlc("tictactoe.tla", "minimal.cfg", output_path)
-
-with open(output_path) as f:
-    graph = parse_tla_dot(f.read())
-
-
-def project_tokens(state):
-    tokens = len([x for x in state["board"].values() if x != " "])
-
-    if state["result"] != "?":
-        return state["result"]
-
-    return tokens
-
-graph_projection = project(graph, project_tokens)
-
-graph_projection.to_dot("projection.dot")
-
-subprocess.run(["wsl.exe", "-e", "dot", "-Tsvg", "-o", "projection.svg", "projection.dot"])
