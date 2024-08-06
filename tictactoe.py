@@ -59,6 +59,7 @@ def main():
     class TurnLens(Lens):
         def map_state(self, state):
             return state["turn"]
+
         def map_action(self, action, type):
             return ""
 
@@ -67,6 +68,9 @@ def main():
     class ResultLens(Lens):
         def map_state(self, state):
             return state["result"]
+
+        def map_action(self, action, type):
+            return ""
 
     project(graph, ResultLens()).to_svg(dot, "output/result_projection.svg")
 

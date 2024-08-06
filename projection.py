@@ -3,6 +3,7 @@ import networkx
 from networkx import MultiDiGraph as Graph
 from enum import Enum
 import json
+import pydot
 
 def parse_value(value: str):
     value = value.strip()
@@ -82,7 +83,9 @@ class Projection:
         for (s,d,a) in self.graph.edges(keys=True):
             g.add_edge(s,d, label=f"{a}")
 
-        networkx.nx_pydot.write_dot(g, file)
+        d: pydot.Dot = networkx.nx_pydot.to_pydot(g)
+        d.set("rankdir", "LR")
+        d.write(file)
 
     def to_svg(self, dot, file: str):
         dot_file = file.removesuffix(".svg") + ".dot"
