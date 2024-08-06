@@ -48,7 +48,9 @@ def main():
     tlc = Tlc(JAVA, TLA2TOOLS)
     dot = Dot()
 
-    output_path = "tictactoe.dot"
+    os.makedirs("output", exist_ok=True)
+
+    output_path = "output/tictactoe.dot"
     tlc.make_dot("tictactoe.tla", "minimal.cfg", output_path)
 
     with open(output_path) as f:
@@ -60,13 +62,13 @@ def main():
         def map_action(self, action, type):
             return ""
 
-    project(graph, TurnLens()).to_svg(dot, "turn_projection.svg")
+    project(graph, TurnLens()).to_svg(dot, "output/turn_projection.svg")
 
     class ResultLens(Lens):
         def map_state(self, state):
             return state["result"]
 
-    project(graph, ResultLens()).to_svg(dot, "result_projection.svg")
+    project(graph, ResultLens()).to_svg(dot, "output/result_projection.svg")
 
     class CountLens(Lens):
         def map_state(self, state):
@@ -77,7 +79,7 @@ def main():
         def map_action(self, action, type):
             return ""
 
-    project(graph, CountLens()).to_svg(dot, "count_projection.svg")
+    project(graph, CountLens()).to_svg(dot, "output/count_projection.svg")
 
 if __name__ == "__main__":
     main()

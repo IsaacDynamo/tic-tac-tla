@@ -2,3 +2,5 @@ states
 *.out
 *.dot
 *.svg
+output
+__pycache__
