@@ -17,7 +17,7 @@ Projection that shows the possible outcomes of a game.
 ![](output/result_projection.svg)
 
 ### Game progression
-Projection that shows the number of pieces on the board and the terminal states.
+Projection that shows the number of pieces on the board and the terminal states. This visualization also shows the initial state and the number of original states represented by each projected state.
 
 ![](output/count_projection.svg)
 

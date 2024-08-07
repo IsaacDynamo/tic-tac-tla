@@ -41,7 +41,7 @@ def parse_state(values: str) -> dict:
     return state
 
 REGEX_EDGE = re.compile(r"(-?\d*) -> (-?\d*) \[label=\"(.*)\",color=\"black\",fontcolor=\"black\"\];")
-REGEX_STATE = re.compile(r"(-?\d*) \[label=\"(.*)\"(?:,style = filled)?\];?")
+REGEX_STATE = re.compile(r"(-?\d*) \[label=\"(.*)\"(,style = filled)?\];?")
 
 def parse_tla_dot(input: str) -> Graph:
     graph = Graph()
@@ -57,12 +57,15 @@ def parse_tla_dot(input: str) -> Graph:
         if s:
             id = int(s.group(1))
             label = s.group(2).encode('utf-8').decode('unicode_escape').replace("\n", " ")
+            initial = s.group(3) is not None
             state = parse_state(label)
-            graph.add_node(id, state=state)
+            graph.add_node(id, state=state, initial=initial)
     return graph
 
 class Projection:
-    def __init__(self):
+    def __init__(self, graph, lens):
+        self.parent = graph
+        self.lens = lens
         self._id = 0
         self.graph = Graph()
         self.mapping = {}
@@ -77,11 +80,36 @@ class Projection:
         g = Graph()
 
         for id in self.graph.nodes():
+            children = self.graph.nodes[id]["children"]
+
+            extra = {}
+            if self.lens.show_initial:
+                inits = [self.parent.nodes[child]["initial"] for child in children]
+                if all(inits):
+                    extra.update({ "style": "filled,bold" })
+                elif any(inits):
+                    extra.update({ "style": "filled" })
+
             s = self.graph.nodes[id]["state"]
-            g.add_node(id, label=f"{s}")
+            label = f"{s}"
+            if self.lens.show_node_count:
+                count = len(children)
+                label = label + f"\n#{count}"
+
+            g.add_node(id, label=label, **extra)
 
         for (s,d,a) in self.graph.edges(keys=True):
-            g.add_edge(s,d, label=f"{a}")
+
+            extra = {}
+            # TODO: add visualization for definite and semi-deterministic edges
+
+            label = f"{a}"
+            if self.lens.show_edge_count:
+                # TODO: impl
+                count = 0
+                label = label + f"\n#{count}"
+
+            g.add_edge(s,d, label=label, **extra)
 
         d: pydot.Dot = networkx.nx_pydot.to_pydot(g)
         d.set("rankdir", "LR")
@@ -98,7 +126,10 @@ class ActionType(Enum):
     External = 3
 
 class Lens:
-    filter_actions = True
+    filter_self_actions = True
+    show_node_count = False
+    show_edge_count = False
+    show_initial = False
     def map_state(self, state):
         # Convert dict into something hashable
         return json.dumps(state, sort_keys=True, indent=1).replace(":", "=").removesuffix("\n}").removeprefix("{\n")
@@ -107,7 +138,7 @@ class Lens:
         return action
 
 def project(graph: Graph, lens: Lens) -> Projection:
-    p = Projection()
+    p = Projection(graph, lens)
     for id in graph.nodes():
         s = lens.map_state(graph.nodes[id]["state"])
         if s is not None:
@@ -115,8 +146,9 @@ def project(graph: Graph, lens: Lens) -> Projection:
             if pid is None:
                 pid = p.id()
                 p.mapping[s] = pid
-                p.graph.add_node(pid, state = s)
+                p.graph.add_node(pid, state = s, children = set())
             p.id_to_pid[id] = pid
+            p.graph.nodes[pid]["children"].add(id)
 
     for (src, dst, action) in graph.edges(keys=True):
         psrc = p.id_to_pid.get(src, None)
@@ -129,7 +161,7 @@ def project(graph: Graph, lens: Lens) -> Projection:
             else:
                 t = ActionType.External
 
-            if lens.filter_actions and t != ActionType.External:
+            if lens.filter_self_actions and t != ActionType.External:
                 paction = None
             else:
                 paction = lens.map_action(action, t)

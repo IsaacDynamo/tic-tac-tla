@@ -75,10 +75,13 @@ def main():
     project(graph, ResultLens()).to_svg(dot, "output/result_projection.svg")
 
     class CountLens(Lens):
+        show_node_count = True
+        show_initial = True
         def map_state(self, state):
             if state["result"] != "?":
                 return state["result"]
-            return len([x for x in state["board"].values() if x != " "])
+            pieces = len([x for x in state["board"].values() if x != " "])
+            return f"Pieces {pieces}"
 
         def map_action(self, action, type):
             return ""
