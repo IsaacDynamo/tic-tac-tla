@@ -23,6 +23,11 @@ def parse_value(value: str):
             mapping[k] = v
         return mapping
 
+    if value == "TRUE":
+        return True
+    elif value == "FALSE":
+        return False
+
     try:
         return int(value)
     except ValueError:
