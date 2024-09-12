@@ -75,6 +75,7 @@ class Projection:
         self.graph = Graph()
         self.mapping = {}
         self.id_to_pid = {}
+        self.id_to_eqv_class_id = {}
 
     def id(self):
         i = self._id
@@ -85,36 +86,48 @@ class Projection:
         g = Graph()
 
         for id in self.graph.nodes():
-            children = self.graph.nodes[id]["children"]
+            node = self.graph.nodes[id]
 
             extra = {}
-            if self.lens.show_initial:
-                inits = [self.parent.nodes[child]["initial"] for child in children]
-                if all(inits):
-                    extra.update({ "style": "filled,bold" })
-                elif any(inits):
-                    extra.update({ "style": "filled" })
+            style = []
+            if self.lens.show_initial and node["contains_initial"]:
+                style.append("filled")
 
-            s = self.graph.nodes[id]["state"]
-            label = f"{s}"
-            if self.lens.show_node_count:
-                count = len(children)
-                label = label + f"\n#{count}"
+            if self.lens.show_single_state and node["single_state"]:
+                style.append("bold")
 
-            g.add_node(id, label=label, **extra)
+            if style:
+                extra.update({ "style": ",".join(style) })
+
+            label = self.lens.state_label(node["eqv_class"])
+            if label is not None:
+                if self.lens.show_node_count:
+                    count = len(node["state_ids"])
+                    label = label + f"\n#{count}"
+
+                g.add_node(id, label=label, **extra)
 
         for (s,d,a) in self.graph.edges(keys=True):
+            edge = self.graph.edges[s, d, a]
+
+            if self.lens.filter_self_actions and s == d:
+                continue
 
             extra = {}
-            # TODO: add visualization for definite and semi-deterministic edges
 
-            label = f"{a}"
-            if self.lens.show_edge_count:
-                # TODO: impl
-                count = 0
-                label = label + f"\n#{count}"
+            if not edge["semi_deterministic"]:
+                extra.update({ "color": "gray" })
 
-            g.add_edge(s,d, label=label, **extra)
+            if not edge["definite"]:
+                extra.update({ "style": "dashed" })
+
+            label = self.lens.action_label(a)
+            if label is not None:
+                if self.lens.show_edge_count:
+                    count = len(edge["sources"])
+                    label = label + f"\n#{count}"
+
+                g.add_edge(s,d, label=label, **extra)
 
         d: pydot.Dot = networkx.nx_pydot.to_pydot(g)
         d.set("rankdir", "LR")
@@ -131,47 +144,69 @@ class ActionType(Enum):
     External = 3
 
 class Lens:
-    filter_self_actions = True
+    filter_self_actions = False
     show_node_count = False
     show_edge_count = False
-    show_initial = False
-    def map_state(self, state):
-        # Convert dict into something hashable
+    show_initial = True
+    show_single_state = True
+
+    def projection(self, state):
+        return state
+
+    def serialize(self, state):
+        # Convert state (most likely a dict) into something hashable
+        return json.dumps(state, sort_keys=True)
+
+    def state_label(self, state):
+        if isinstance(state, str):
+            return state
         return json.dumps(state, sort_keys=True, indent=1).replace(":", "=").removesuffix("\n}").removeprefix("{\n")
 
-    def map_action(self, action, type: ActionType):
-        return action
+    def action_label(self, action):
+        return ""
 
 def project(graph: Graph, lens: Lens) -> Projection:
     p = Projection(graph, lens)
     for id in graph.nodes():
-        s = lens.map_state(graph.nodes[id]["state"])
-        if s is not None:
-            pid = p.mapping.get(s, None)
-            if pid is None:
-                pid = p.id()
-                p.mapping[s] = pid
-                p.graph.add_node(pid, state = s, children = set())
-            p.id_to_pid[id] = pid
-            p.graph.nodes[pid]["children"].add(id)
+        eqv_class = lens.projection(graph.nodes[id]["state"])
+        eqv_class_id = lens.serialize(eqv_class)
+
+        if not p.graph.has_node(eqv_class_id):
+            p.graph.add_node(eqv_class_id, state_ids = set(), eqv_class = eqv_class)
+            p.graph.nodes[eqv_class_id]["action_src_ids"] = {}
+            p.graph.nodes[eqv_class_id]["action_dst_eqv_class_ids"] = {}
+
+        p.graph.nodes[eqv_class_id]["state_ids"].add(id)
+        p.id_to_eqv_class_id[id] = eqv_class_id
 
     for (src, dst, action) in graph.edges(keys=True):
-        psrc = p.id_to_pid.get(src, None)
-        pdst = p.id_to_pid.get(dst, None)
-        if psrc is not None and pdst is not None:
-            if src == dst:
-                t = ActionType.Loop
-            elif psrc == pdst:
-                t = ActionType.Internal
-            else:
-                t = ActionType.External
+        src_eqv_class_id = p.id_to_eqv_class_id[src]
+        dst_eqv_class_id = p.id_to_eqv_class_id[dst]
 
-            if lens.filter_self_actions and t != ActionType.External:
-                paction = None
-            else:
-                paction = lens.map_action(action, t)
+        src_eqv_class = p.graph.nodes[src_eqv_class_id]
 
-            if paction is not None:
-                p.graph.add_edge(psrc, pdst, paction)
+        if action not in src_eqv_class["action_src_ids"]:
+            src_eqv_class["action_src_ids"][action] = set()
+        src_eqv_class["action_src_ids"][action].add(src)
+
+        if action not in src_eqv_class["action_dst_eqv_class_ids"]:
+            src_eqv_class["action_dst_eqv_class_ids"][action] = set()
+        src_eqv_class["action_dst_eqv_class_ids"][action].add(dst_eqv_class_id)
+
+        if not p.graph.has_edge(src_eqv_class_id, dst_eqv_class_id, action):
+            p.graph.add_edge(src_eqv_class_id, dst_eqv_class_id, action, source_state_ids = set())
+        p.graph.edges[src_eqv_class_id, dst_eqv_class_id, action]["source_state_ids"].add(src)
+
+    # Run analysis
+    for eqv_class_id in p.graph.nodes():
+        eqv_class = p.graph.nodes[eqv_class_id]
+        state_ids = eqv_class["state_ids"]
+        eqv_class["single_state"] = len(state_ids) == 1
+        eqv_class["contains_initial"] = any(p.parent.nodes[id]["initial"] for id in state_ids)
+
+    for (s,d,a) in p.graph.edges(keys=True):
+        edge = p.graph.edges[s, d, a]
+        edge["definite"] = p.graph.nodes[s]["action_src_ids"][a] == p.graph.nodes[s]["state_ids"]
+        edge["semi_deterministic"] = len(p.graph.nodes[s]["action_dst_eqv_class_ids"][a]) == 1
 
     return p

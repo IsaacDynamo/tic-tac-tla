@@ -7,7 +7,9 @@ JAVA = "C:/tools/amazon-corretto-11.0.15.9.1-windows-x64-jdk/jdk11.0.15_9/bin/ja
 TLA2TOOLS = "C:/tools/TLAToolbox-1.7.1-win32.win32.x86_64/toolbox/tla2tools.jar"
 
 class TurnLens(Lens):
-    def map_state(self, state):
+    filter_self_actions = True
+
+    def projection(self, state):
         return state["turn"]
 
     def map_action(self, action, type):
@@ -15,7 +17,9 @@ class TurnLens(Lens):
 
 
 class ResultLens(Lens):
-    def map_state(self, state):
+    filter_self_actions = True
+
+    def projection(self, state):
         return state["result"]
 
     def map_action(self, action, type):
@@ -23,9 +27,11 @@ class ResultLens(Lens):
 
 
 class CountLens(Lens):
+    filter_self_actions = True
     show_node_count = True
     show_initial = True
-    def map_state(self, state):
+
+    def projection(self, state):
         if state["result"] != "?":
             return state["result"]
         pieces = len([x for x in state["board"].values() if x != " "])
