@@ -13,7 +13,7 @@ Nodes represent a equivalence class. This is a collection of states with the sam
 - Bold outline: Single state within the equivalence class.
 
 #### Edges
-Edges represent state
+Edges represent a collection of transitions.
 - Solid line: Definite, all states within an equivalence class can make a transition *e*. But for each state the transition *e* might move to different equivalence classes.
 - Dashed line: Non-definite, when it is not definite.
 - Black line: Semi-deterministic, All states within an equivalence classes that can make a transition *e*, move to the same destination equivalence class.
