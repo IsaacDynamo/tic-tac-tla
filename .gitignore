@@ -4,3 +4,4 @@ states
 *.svg
 output
 __pycache__
+.ipynb_checkpoints
