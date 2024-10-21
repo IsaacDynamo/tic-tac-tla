@@ -5,3 +5,4 @@ states
 output
 __pycache__
 .ipynb_checkpoints
+Pipfile.lock

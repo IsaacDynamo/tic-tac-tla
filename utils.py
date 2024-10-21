@@ -9,7 +9,7 @@ class Tlc:
 
     # Generate dot file, with fast path based on file timestamps
     def make_dot(self, input_path: str, config_path: str, output_path: str):
-        def file_ts(file: str) -> int:
+        def file_ts(file: str) -> float:
             try:
                 return os.path.getmtime(file)
             except FileNotFoundError:

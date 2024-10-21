@@ -4,46 +4,14 @@ from networkx import MultiDiGraph as Graph
 from enum import Enum
 import json
 import pydot
-
-def parse_value(value: str):
-    value = value.strip()
-
-    if value.startswith("\"") and value.endswith("\""):
-        return value[1:-1]
-
-    if value.startswith("<<") and value.endswith(">>"):
-        return tuple(parse_value(x) for x in value[2:-2].split(","))
-
-    if value.startswith("(") and value.endswith(")"):
-        mapping = {}
-        items = value[1:-1].split("@@")
-        for item in items:
-            k, _, v = item.partition(":>")
-            k, v = parse_value(k), parse_value(v)
-            mapping[k] = v
-        return mapping
-
-    if value == "TRUE":
-        return True
-    elif value == "FALSE":
-        return False
-
-    try:
-        return int(value)
-    except ValueError:
-        pass
-
-    return value
+import tempfile
+from IPython.display import SVG
+import os
+import subprocess
+import parse
 
 def parse_state(values: str) -> dict:
-    state = {}
-    for name_value in values.split("/\\"):
-        if name_value == "":
-            continue
-        name, _, value = name_value.partition(" = ")
-        name = name.strip()
-        state[name] = parse_value(value)
-    return state
+    return parse.Parser(values).parse()
 
 REGEX_EDGE = re.compile(r"(-?\d*) -> (-?\d*) \[label=\"(.*)\",color=\"black\",fontcolor=\"black\"\];")
 REGEX_STATE = re.compile(r"(-?\d*) \[label=\"(.*)\"(,style = filled)?\];?")
@@ -68,7 +36,7 @@ def parse_tla_dot(input: str) -> Graph:
     return graph
 
 class Projection:
-    def __init__(self, graph, lens):
+    def __init__(self, graph, lens: 'Lens'):
         self.parent = graph
         self.lens = lens
         self._id = 0
@@ -138,6 +106,26 @@ class Projection:
         self.to_dot(dot_file)
         dot.run("-Tsvg", "-o", file, dot_file)
 
+    def show(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dot_file = os.path.join(tmpdir, 'graph.dot')
+            self.to_dot(dot_file)
+
+            cmd = ["wsl.exe", "-e", "dot", "-Tsvg", "-o", "graph.svg", "graph.dot"]
+            subprocess.run(cmd, cwd=tmpdir, check = True)
+
+            svg_file = os.path.join(tmpdir, 'graph.svg')
+            return SVG(filename=svg_file)
+
+    def dump(self) -> str:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dot_file = os.path.join(tmpdir, 'graph.dot')
+            self.to_dot(dot_file)
+
+            with open(dot_file) as f:
+                return f.read()
+
+
 class ActionType(Enum):
     Loop = 1
     Internal = 2
@@ -164,6 +152,13 @@ class Lens:
 
     def action_label(self, action):
         return ""
+
+    def focus(self, graph) -> Projection:
+        return project(graph, self)
+
+class IdentityLens(Lens):
+    def action_label(self, action):
+        return action
 
 def project(graph: Graph, lens: Lens) -> Projection:
     p = Projection(graph, lens)
