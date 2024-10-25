@@ -45,7 +45,7 @@ class Parser:
         return int(self.regex(r"[0-9]+"))
 
     def bool(self) -> int:
-        return bool(self.regex(r"(?:TRUE|FALSE)"))
+        return self.regex(r"(?:TRUE|FALSE)") == "TRUE"
 
     def collection(self):
         c = {}
@@ -120,26 +120,52 @@ class Parser:
 
         return r
 
-    def parse(self) -> dict:
-        return self.multi_or()
+def parse(input: str) -> dict:
+    return Parser(input).multi_or()
 
+class SerializeException(Exception):
+    pass
 
-def test():
-    i = "/\\ i = 123"
-    Parser(i).parse()
+def serialize(obj: dict[str, Any]) -> str:
+    if not isinstance(obj, dict):
+        raise SerializeException(f"Unexpected {type(obj)}")
 
-    i = "/\\ a = FALSE  /\\ b = TRUE"
-    Parser(i).parse()
+    def value(val: Any) -> str:
+        if isinstance(val, bool):
+            return str(val).upper()
+        elif isinstance(val, int):
+            return str(val)
+        elif isinstance(val, str):
+            return f"\"{val}\""
+        elif isinstance(val, tuple):
+            return "<<" + ", ".join(value(t) for t in val) + ">>"
+        elif isinstance(val, dict):
+            return "( " + " @@\n  ".join(value(k) + " :> " + value(v) for k,v in val.items()) + " )"
 
-    i = "/\\ t = <<0, 2>>"
-    Parser(i).parse()
+        raise SerializeException(f"Unhandled {type(val)}")
 
-    i = "/\\ result = \"?\"\n/\\ board = ( <<0, 0>> :> \" \" @@\n  <<0, 1>> :> \" \" @@\n  <<0, 2>> :> \" \" @@\n  <<1, 0>> :> \"X\" @@\n  <<1, 1>> :> \" \" @@\n  <<1, 2>> :> \" \" @@\n  <<2, 0>> :> \" \" @@\n  <<2, 1>> :> \" \" @@\n  <<2, 2>> :> \" \" )\n/\\ turn = \"O\""
-    Parser(i).parse()
+    retval = "\n/\\ ".join(f"{k} = {value(v)}" for k, v in obj.items())
+    if len(obj) > 1:
+        retval = "/\\ " + retval
+    return retval
+
+def test_roundtrip():
+    i = "i = 123"
+    o = serialize(parse(i))
+    assert(i == o)
+
+    i = "/\\ a = FALSE\n/\\ b = TRUE"
+    o = serialize(parse(i))
+    assert(i == o)
+
+    i = "t = <<0, 2>>"
+    o = serialize(parse(i))
+    assert(i == o)
 
     i = "node = \"A1\""
-    Parser(i).parse()
+    o = serialize(parse(i))
+    assert(i == o)
 
-
-
-#test()
+    i = "/\\ result = \"?\"\n/\\ board = ( <<0, 0>> :> \" \" @@\n  <<0, 1>> :> \" \" @@\n  <<0, 2>> :> \" \" @@\n  <<1, 0>> :> \"X\" @@\n  <<1, 1>> :> \" \" @@\n  <<1, 2>> :> \" \" @@\n  <<2, 0>> :> \" \" @@\n  <<2, 1>> :> \" \" @@\n  <<2, 2>> :> \" \" )\n/\\ turn = \"O\""
+    o = serialize(parse(i))
+    assert(i == o)
