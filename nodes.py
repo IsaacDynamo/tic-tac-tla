@@ -14,6 +14,3 @@ os.makedirs("output", exist_ok=True)
 
 output_path = "output/nodes.dot"
 tlc.make_dot("nodes.tla", "nodes.cfg", output_path)
-
-with open(output_path) as f:
-    graph = parse_tla_dot(f.read())
