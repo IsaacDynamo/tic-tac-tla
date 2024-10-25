@@ -9,165 +9,165 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 131.87)">
 <title>%3</title>
 <polygon fill="white" stroke="transparent" points="-4,4 -4,-131.87 1518,-131.87 1518,4 -4,4"/>
-<!-- Pieces 0 -->
+<!-- 1 -->
 <g id="node1" class="node">
-<title>Pieces 0</title>
+<title>1</title>
 <ellipse fill="lightgrey" stroke="black" stroke-width="2" cx="53.74" cy="-27" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="53.74" y="-30.8" font-family="Times,serif" font-size="14.00">Pieces 0</text>
 <text text-anchor="middle" x="53.74" y="-15.8" font-family="Times,serif" font-size="14.00">#1</text>
 </g>
-<!-- Pieces 1 -->
+<!-- 2 -->
 <g id="node2" class="node">
-<title>Pieces 1</title>
+<title>2</title>
 <ellipse fill="none" stroke="black" cx="197.22" cy="-27" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="197.22" y="-30.8" font-family="Times,serif" font-size="14.00">Pieces 1</text>
 <text text-anchor="middle" x="197.22" y="-15.8" font-family="Times,serif" font-size="14.00">#9</text>
 </g>
-<!-- Pieces 0&#45;&gt;Pieces 1 -->
+<!-- 1&#45;&gt;2 -->
 <g id="edge1" class="edge">
-<title>Pieces 0&#45;&gt;Pieces 1</title>
+<title>1&#45;&gt;2</title>
 <path fill="none" stroke="black" d="M107.82,-27C116.07,-27 124.67,-27 133.11,-27"/>
 <polygon fill="black" stroke="black" points="133.31,-30.5 143.31,-27 133.31,-23.5 133.31,-30.5"/>
 </g>
-<!-- Pieces 2 -->
+<!-- 3 -->
 <g id="node3" class="node">
-<title>Pieces 2</title>
+<title>3</title>
 <ellipse fill="none" stroke="black" cx="340.7" cy="-27" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="340.7" y="-30.8" font-family="Times,serif" font-size="14.00">Pieces 2</text>
 <text text-anchor="middle" x="340.7" y="-15.8" font-family="Times,serif" font-size="14.00">#72</text>
 </g>
-<!-- Pieces 1&#45;&gt;Pieces 2 -->
+<!-- 2&#45;&gt;3 -->
 <g id="edge2" class="edge">
-<title>Pieces 1&#45;&gt;Pieces 2</title>
+<title>2&#45;&gt;3</title>
 <path fill="none" stroke="black" d="M251.3,-27C259.56,-27 268.15,-27 276.59,-27"/>
 <polygon fill="black" stroke="black" points="276.79,-30.5 286.79,-27 276.79,-23.5 276.79,-30.5"/>
 </g>
-<!-- Pieces 3 -->
+<!-- 4 -->
 <g id="node4" class="node">
-<title>Pieces 3</title>
+<title>4</title>
 <ellipse fill="none" stroke="black" cx="484.18" cy="-27" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="484.18" y="-30.8" font-family="Times,serif" font-size="14.00">Pieces 3</text>
 <text text-anchor="middle" x="484.18" y="-15.8" font-family="Times,serif" font-size="14.00">#168</text>
 </g>
-<!-- Pieces 2&#45;&gt;Pieces 3 -->
+<!-- 3&#45;&gt;4 -->
 <g id="edge3" class="edge">
-<title>Pieces 2&#45;&gt;Pieces 3</title>
+<title>3&#45;&gt;4</title>
 <path fill="none" stroke="black" d="M394.79,-27C403.04,-27 411.63,-27 420.07,-27"/>
 <polygon fill="black" stroke="black" points="420.27,-30.5 430.27,-27 420.27,-23.5 420.27,-30.5"/>
 </g>
-<!-- Pieces 4 -->
+<!-- 5 -->
 <g id="node5" class="node">
-<title>Pieces 4</title>
+<title>5</title>
 <ellipse fill="none" stroke="black" cx="627.66" cy="-27" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="627.66" y="-30.8" font-family="Times,serif" font-size="14.00">Pieces 4</text>
 <text text-anchor="middle" x="627.66" y="-15.8" font-family="Times,serif" font-size="14.00">#642</text>
 </g>
-<!-- Pieces 3&#45;&gt;Pieces 4 -->
+<!-- 4&#45;&gt;5 -->
 <g id="edge4" class="edge">
-<title>Pieces 3&#45;&gt;Pieces 4</title>
+<title>4&#45;&gt;5</title>
 <path fill="none" stroke="black" d="M538.27,-27C546.52,-27 555.11,-27 563.55,-27"/>
 <polygon fill="black" stroke="black" points="563.75,-30.5 573.75,-27 563.75,-23.5 563.75,-30.5"/>
 </g>
-<!-- Pieces 5 -->
+<!-- 6 -->
 <g id="node6" class="node">
-<title>Pieces 5</title>
+<title>6</title>
 <ellipse fill="none" stroke="black" cx="771.14" cy="-27" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="771.14" y="-30.8" font-family="Times,serif" font-size="14.00">Pieces 5</text>
 <text text-anchor="middle" x="771.14" y="-15.8" font-family="Times,serif" font-size="14.00">#620</text>
 </g>
-<!-- Pieces 4&#45;&gt;Pieces 5 -->
+<!-- 5&#45;&gt;6 -->
 <g id="edge5" class="edge">
-<title>Pieces 4&#45;&gt;Pieces 5</title>
+<title>5&#45;&gt;6</title>
 <path fill="none" stroke="black" d="M681.75,-27C690,-27 698.59,-27 707.03,-27"/>
 <polygon fill="black" stroke="black" points="707.23,-30.5 717.23,-27 707.23,-23.5 707.23,-30.5"/>
 </g>
-<!-- Pieces 6 -->
+<!-- 7 -->
 <g id="node7" class="node">
-<title>Pieces 6</title>
+<title>7</title>
 <ellipse fill="none" stroke="black" cx="914.62" cy="-55" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="914.62" y="-58.8" font-family="Times,serif" font-size="14.00">Pieces 6</text>
 <text text-anchor="middle" x="914.62" y="-43.8" font-family="Times,serif" font-size="14.00">#998</text>
 </g>
-<!-- Pieces 5&#45;&gt;Pieces 6 -->
+<!-- 6&#45;&gt;7 -->
 <g id="edge6" class="edge">
-<title>Pieces 5&#45;&gt;Pieces 6</title>
+<title>6&#45;&gt;7</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M821.62,-36.79C832.24,-38.89 843.56,-41.13 854.5,-43.3"/>
 <polygon fill="black" stroke="black" points="853.92,-46.75 864.41,-45.26 855.28,-39.88 853.92,-46.75"/>
 </g>
-<!-- Win -->
+<!-- 8 -->
 <g id="node8" class="node">
-<title>Win</title>
+<title>8</title>
 <ellipse fill="none" stroke="black" cx="1474.4" cy="-29" rx="39.7" ry="26.74"/>
 <text text-anchor="middle" x="1474.4" y="-32.8" font-family="Times,serif" font-size="14.00">Win</text>
 <text text-anchor="middle" x="1474.4" y="-17.8" font-family="Times,serif" font-size="14.00">#844</text>
 </g>
-<!-- Pieces 5&#45;&gt;Win -->
+<!-- 6&#45;&gt;8 -->
 <g id="edge7" class="edge">
-<title>Pieces 5&#45;&gt;Win</title>
+<title>6&#45;&gt;8</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M822.71,-19.3C879.57,-11.32 974.73,0 1057.1,0 1057.1,0 1057.1,0 1202.58,0 1281.21,0 1371.95,-12.24 1425.9,-20.81"/>
 <polygon fill="black" stroke="black" points="1425.43,-24.28 1435.86,-22.42 1426.54,-17.37 1425.43,-24.28"/>
 </g>
-<!-- Pieces 7 -->
+<!-- 9 -->
 <g id="node9" class="node">
-<title>Pieces 7</title>
+<title>9</title>
 <ellipse fill="none" stroke="black" cx="1058.1" cy="-55" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="1058.1" y="-58.8" font-family="Times,serif" font-size="14.00">Pieces 7</text>
 <text text-anchor="middle" x="1058.1" y="-43.8" font-family="Times,serif" font-size="14.00">#716</text>
 </g>
-<!-- Pieces 6&#45;&gt;Pieces 7 -->
+<!-- 7&#45;&gt;9 -->
 <g id="edge8" class="edge">
-<title>Pieces 6&#45;&gt;Pieces 7</title>
+<title>7&#45;&gt;9</title>
 <path fill="none" stroke="black" d="M968.71,-55C976.96,-55 985.55,-55 993.99,-55"/>
 <polygon fill="black" stroke="black" points="994.19,-58.5 1004.19,-55 994.19,-51.5 994.19,-58.5"/>
 </g>
-<!-- Pieces 7&#45;&gt;Win -->
+<!-- 9&#45;&gt;8 -->
 <g id="edge9" class="edge">
-<title>Pieces 7&#45;&gt;Win</title>
+<title>9&#45;&gt;8</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M1111.57,-51.71C1192.43,-46.63 1346.32,-36.98 1424.78,-32.05"/>
 <polygon fill="black" stroke="black" points="1425.12,-35.54 1434.88,-31.42 1424.68,-28.55 1425.12,-35.54"/>
 </g>
-<!-- Pieces 8 -->
+<!-- 10 -->
 <g id="node10" class="node">
-<title>Pieces 8</title>
+<title>10</title>
 <ellipse fill="none" stroke="black" cx="1201.58" cy="-93" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="1201.58" y="-96.8" font-family="Times,serif" font-size="14.00">Pieces 8</text>
 <text text-anchor="middle" x="1201.58" y="-81.8" font-family="Times,serif" font-size="14.00">#94</text>
 </g>
-<!-- Pieces 7&#45;&gt;Pieces 8 -->
+<!-- 9&#45;&gt;10 -->
 <g id="edge10" class="edge">
-<title>Pieces 7&#45;&gt;Pieces 8</title>
+<title>9&#45;&gt;10</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M1105.82,-67.55C1118.01,-70.82 1131.29,-74.39 1143.94,-77.79"/>
 <polygon fill="black" stroke="black" points="1143.35,-81.25 1153.91,-80.47 1145.16,-74.49 1143.35,-81.25"/>
 </g>
-<!-- Pieces 9 -->
+<!-- 11 -->
 <g id="node11" class="node">
-<title>Pieces 9</title>
+<title>11</title>
 <ellipse fill="none" stroke="black" cx="1345.06" cy="-93" rx="53.98" ry="26.74"/>
 <text text-anchor="middle" x="1345.06" y="-96.8" font-family="Times,serif" font-size="14.00">Pieces 9</text>
 <text text-anchor="middle" x="1345.06" y="-81.8" font-family="Times,serif" font-size="14.00">#40</text>
 </g>
-<!-- Pieces 8&#45;&gt;Pieces 9 -->
+<!-- 10&#45;&gt;11 -->
 <g id="edge11" class="edge">
-<title>Pieces 8&#45;&gt;Pieces 9</title>
+<title>10&#45;&gt;11</title>
 <path fill="none" stroke="black" d="M1255.67,-93C1263.92,-93 1272.51,-93 1280.95,-93"/>
 <polygon fill="black" stroke="black" points="1281.15,-96.5 1291.15,-93 1281.15,-89.5 1281.15,-96.5"/>
 </g>
-<!-- Pieces 9&#45;&gt;Win -->
+<!-- 11&#45;&gt;8 -->
 <g id="edge12" class="edge">
-<title>Pieces 9&#45;&gt;Win</title>
+<title>11&#45;&gt;8</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M1383.58,-74.14C1399.16,-66.32 1417.26,-57.22 1433.12,-49.25"/>
 <polygon fill="black" stroke="black" points="1434.79,-52.32 1442.16,-44.7 1431.65,-46.07 1434.79,-52.32"/>
 </g>
-<!-- Draw -->
+<!-- 12 -->
 <g id="node12" class="node">
-<title>Draw</title>
+<title>12</title>
 <ellipse fill="none" stroke="black" cx="1474.4" cy="-101" rx="38.78" ry="26.74"/>
 <text text-anchor="middle" x="1474.4" y="-104.8" font-family="Times,serif" font-size="14.00">Draw</text>
 <text text-anchor="middle" x="1474.4" y="-89.8" font-family="Times,serif" font-size="14.00">#6</text>
 </g>
-<!-- Pieces 9&#45;&gt;Draw -->
+<!-- 11&#45;&gt;12 -->
 <g id="edge13" class="edge">
-<title>Pieces 9&#45;&gt;Draw</title>
+<title>11&#45;&gt;12</title>
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M1398.59,-96.3C1407.45,-96.86 1416.61,-97.43 1425.36,-97.98"/>
 <polygon fill="black" stroke="black" points="1425.18,-101.48 1435.38,-98.61 1425.62,-94.49 1425.18,-101.48"/>
 </g>

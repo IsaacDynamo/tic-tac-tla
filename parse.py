@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Union
 
 class ParserException(Exception):
     pass
@@ -126,10 +126,7 @@ def parse(input: str) -> dict:
 class SerializeException(Exception):
     pass
 
-def serialize(obj: dict[str, Any]) -> str:
-    if not isinstance(obj, dict):
-        raise SerializeException(f"Unexpected {type(obj)}")
-
+def serialize(obj: Union[dict[str, Any], Any]) -> str:
     def value(val: Any) -> str:
         if isinstance(val, bool):
             return str(val).upper()
@@ -143,6 +140,9 @@ def serialize(obj: dict[str, Any]) -> str:
             return "( " + " @@\n  ".join(value(k) + " :> " + value(v) for k,v in val.items()) + " )"
 
         raise SerializeException(f"Unhandled {type(val)}")
+
+    if not isinstance(obj, dict):
+        return value(obj)
 
     retval = "\n/\\ ".join(f"{k} = {value(v)}" for k, v in obj.items())
     if len(obj) > 1:

@@ -1,4 +1,5 @@
 import re
+from typing import Any, Hashable
 import networkx
 from networkx import MultiDiGraph as Graph
 from enum import Enum
@@ -9,9 +10,6 @@ from IPython.display import SVG
 import os
 import subprocess
 import parse
-
-def parse_state(values: str) -> dict:
-    return parse.Parser(values).parse()
 
 REGEX_EDGE = re.compile(r"(-?\d*) -> (-?\d*) \[label=\"(.*)\",color=\"black\",fontcolor=\"black\"\];")
 REGEX_STATE = re.compile(r"(-?\d*) \[label=\"(.*)\"(,style = filled)?\];?")
@@ -29,9 +27,9 @@ def parse_tla_dot(input: str) -> Graph:
         s = REGEX_STATE.match(line)
         if s:
             id = int(s.group(1))
-            label = s.group(2).encode('utf-8').decode('unicode_escape').replace("\n", " ")
+            label = s.group(2).encode('utf-8').decode('unicode_escape')
             initial = s.group(3) is not None
-            state = parse_state(label)
+            state = parse.parse(label)
             graph.add_node(id, state=state, initial=initial)
     return graph
 
@@ -52,9 +50,13 @@ class Projection:
 
     def to_dot(self, file: str):
         g = Graph()
+        id_to_n = {}
 
         for id in self.graph.nodes():
             node = self.graph.nodes[id]
+
+            id_n = len(id_to_n) + 1
+            id_to_n[id] = id_n
 
             extra = {}
             style = []
@@ -73,21 +75,24 @@ class Projection:
                     count = len(node["state_ids"])
                     label = label + f"\n#{count}"
 
-                g.add_node(id, label=label, **extra)
+                # Used json to escape the string, this seems to work for .dot files
+                label = json.dumps(label)
+
+                g.add_node(id_n, label=label, **extra)
 
         for (s,d,a) in self.graph.edges(keys=True):
             edge = self.graph.edges[s, d, a]
 
-            if self.lens.filter_self_actions and s == d:
+            if s == d and not self.lens.show_self_actions:
                 continue
 
             extra = {}
+            if self.lens.style_edge:
+                if not edge["semi_deterministic"]:
+                    extra.update({ "color": "gray" })
 
-            if not edge["semi_deterministic"]:
-                extra.update({ "color": "gray" })
-
-            if not edge["definite"]:
-                extra.update({ "style": "dashed" })
+                if not edge["definite"]:
+                    extra.update({ "style": "dashed" })
 
             label = self.lens.action_label(a)
             if label is not None:
@@ -95,7 +100,10 @@ class Projection:
                     count = len(edge["sources"])
                     label = label + f"\n#{count}"
 
-                g.add_edge(s,d, label=label, **extra)
+                # Used json to escape the string, this seems to work for .dot files
+                label = json.dumps(label)
+
+                g.add_edge(id_to_n[s], id_to_n[d], label=label, **extra)
 
         d: pydot.Dot = networkx.nx_pydot.to_pydot(g)
         d.set("rankdir", "LR")
@@ -126,37 +134,35 @@ class Projection:
                 return f.read()
 
 
-class ActionType(Enum):
-    Loop = 1
-    Internal = 2
-    External = 3
-
 class Lens:
-    filter_self_actions = False
+    show_self_actions = False
     show_node_count = False
     show_edge_count = False
     show_initial = True
     show_single_state = True
+    style_edge = True
 
-    def projection(self, state):
+    def projection(self, state) -> Any:
         return state
 
-    def serialize(self, state):
-        # Convert state (most likely a dict) into something hashable
-        return json.dumps(state, sort_keys=True)
+    def serialize(self, state) -> Hashable:
+        return parse.serialize(state)
 
-    def state_label(self, state):
+    def state_label(self, state) -> str:
         if isinstance(state, str):
             return state
-        return json.dumps(state, sort_keys=True, indent=1).replace(":", "=").removesuffix("\n}").removeprefix("{\n")
+        return parse.serialize(state)
 
-    def action_label(self, action):
+    def action_label(self, action) -> str:
         return ""
 
     def focus(self, graph) -> Projection:
         return project(graph, self)
 
 class IdentityLens(Lens):
+    style_edge = False
+    show_single_state = False
+
     def action_label(self, action):
         return action
 
